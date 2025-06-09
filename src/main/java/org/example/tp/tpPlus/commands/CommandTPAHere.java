@@ -115,6 +115,8 @@ public class CommandTPAHere {
         if (request != null) {
             ServerPlayerEntity requester = source.getServer().getPlayerManager().getPlayer(request.getRequesterUuid());
             if (requester != null) {
+                CommandBack.recordPreviousLocation(targetPlayer);
+                
                 targetPlayer.teleport(request.getWorld(), request.getPosition().getX(), request.getPosition().getY(), request.getPosition().getZ(), targetPlayer.getYaw(), targetPlayer.getPitch());
                 targetPlayer.sendMessage(Text.literal("已传送到 " + requester.getEntityName()), false);
                 requester.sendMessage(Text.literal("你已接受来自 " + targetPlayer.getEntityName() + " 的传送请求"), false);

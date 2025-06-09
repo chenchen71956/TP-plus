@@ -1,7 +1,7 @@
 plugins {
     id 'fabric-loom' version '1.8-SNAPSHOT'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.2' // 添加 Shadow Plugin
+    id 'com.github.johnrengelman.shadow' version '7.1.2' // 娣诲姞 Shadow Plugin
 }
 
 version = project.mod_version
@@ -23,13 +23,13 @@ loom {
 }
 
 repositories {
-    mavenCentral() // 添加 Maven 中央仓库
+    mavenCentral() // 娣诲姞 Maven 涓ぎ浠撳簱
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    implementation 'com.google.code.gson:gson:2.8.9' // 添加 Gson 依赖
+    implementation 'com.google.code.gson:gson:2.8.9' // 娣诲姞 Gson 渚濊禆
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }

@@ -114,6 +114,8 @@ public class CommandTPA {
         if (requesterUuid != null) {
             ServerPlayerEntity requester = source.getServer().getPlayerManager().getPlayer(requesterUuid);
             if (requester != null) {
+                CommandBack.recordPreviousLocation(requester);
+                
                 ServerWorld targetWorld = (ServerWorld) targetPlayer.getWorld();
                 requester.teleport(targetWorld, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(), targetPlayer.getYaw(), targetPlayer.getPitch());
                 requester.sendMessage(Text.literal("已传送到 " + targetPlayer.getEntityName()), false);

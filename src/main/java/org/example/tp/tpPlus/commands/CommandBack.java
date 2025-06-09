@@ -3,6 +3,7 @@ package org.example.tp.tpPlus.commands;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.minecraft.block.BlockState;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -28,7 +29,7 @@ public class CommandBack {
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
             if (entity instanceof ServerPlayerEntity player) {
                 recordPreviousLocation(player);
-                if (player.getBlockPos().getY() < player.getWorld().getBottomY()) {
+                if (player.getY() < player.getWorld().getBottomY()) {
                     diedInVoid.put(player.getUuid(), true);
                 }
             }
@@ -36,14 +37,21 @@ public class CommandBack {
     }
 
     public static void recordPreviousLocation(ServerPlayerEntity player) {
-        BlockPos pos = player.getBlockPos();
         ServerWorld world = (ServerWorld) player.getWorld();
+        
+        // 获取玩家的精确位置
+        double exactX = player.getX();
+        double exactY = player.getY();
+        double exactZ = player.getZ();
 
-        if (pos.getY() < world.getBottomY()) {
-            pos = findSafePosition(world, pos);
+        if (exactY < world.getBottomY()) {
+            // 虚空情况使用寻找安全位置的方法
+            BlockPos safePos = findSafePosition(world, new BlockPos((int)exactX, (int)exactY, (int)exactZ));
+            previousLocations.put(player.getUuid(), new PreviousLocation(world, safePos.getX(), safePos.getY(), safePos.getZ()));
+        } else {
+            // 直接使用原始坐标，不进行任何调整
+            previousLocations.put(player.getUuid(), new PreviousLocation(world, exactX, exactY, exactZ));
         }
-
-        previousLocations.put(player.getUuid(), new PreviousLocation(world, pos));
     }
 
     private static BlockPos findSafePosition(ServerWorld world, BlockPos pos) {
@@ -78,7 +86,7 @@ public class CommandBack {
 
         PreviousLocation previousLocation = previousLocations.get(playerUuid);
         if (previousLocation != null) {
-            player.teleport(previousLocation.getWorld(), previousLocation.getPosition().getX(), previousLocation.getPosition().getY(), previousLocation.getPosition().getZ(), player.getYaw(), player.getPitch());
+            player.teleport(previousLocation.getWorld(), previousLocation.getX(), previousLocation.getY(), previousLocation.getZ(), player.getYaw(), player.getPitch());
             if (diedInVoid.getOrDefault(playerUuid, false)) {
                 source.sendFeedback(() -> Text.literal("你死于虚空，夏夏看在了眼里把你传送到了最近的安全位置并提醒你：下次小心点~"), false);
                 diedInVoid.remove(playerUuid);
@@ -92,19 +100,31 @@ public class CommandBack {
 
     private static class PreviousLocation {
         private final ServerWorld world;
-        private final BlockPos position;
+        private final double x;
+        private final double y;
+        private final double z;
 
-        public PreviousLocation(ServerWorld world, BlockPos position) {
+        public PreviousLocation(ServerWorld world, double x, double y, double z) {
             this.world = world;
-            this.position = position;
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
 
         public ServerWorld getWorld() {
             return world;
         }
 
-        public BlockPos getPosition() {
-            return position;
+        public double getX() {
+            return x;
+        }
+
+        public double getY() {
+            return y;
+        }
+
+        public double getZ() {
+            return z;
         }
     }
 } 
